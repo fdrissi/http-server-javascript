@@ -1,36 +1,28 @@
 const net = require('net');
+const formatResponse = require('./formatResponse');
+const requestParser = require('./requestParser');
+const routes = require('./routes');
 
-function formatResponse(response = []) {
-  const res = response.join('\r\n');
-  return res;
-}
+const TWO_HUNDRED_RESPONSE = 'HTTP/1.1 200 OK';
+const FOUR_OH_FOU_RESPONSE = 'HTTP/1.1 404 Not Found';
 
 const server = net.createServer((socket) => {
   socket.on('close', () => {
     socket.end();
-    server.close();
+    // server.close();
   });
 
   socket.on('data', (data) => {
-    const requestParts = data.toString().split('\r\n');
-    const requestStartLine = requestParts[0];
-    const [method, target, httpVersion] = requestStartLine.split(' ');
+    const router = routes(socket);
+    const { requestLine, headers, body } = requestParser(data);
+    const [method, target, httpVersion] = requestLine.split(' ');
 
     if (target === '/') {
-      socket.write('HTTP/1.1 200 OK\r\n\r\n');
-    } else if (target.includes('/echo/')) {
-      const [, text] = target.split('/echo/');
-      socket.write(
-        formatResponse([
-          'HTTP/1.1 200 OK',
-          'Content-Type: text/plain',
-          `Content-Length: ${text.length}`,
-          '',
-          text,
-        ])
-      );
+      router(data, method, '/');
+    } else if (target.includes('/echo')) {
+      router(data, method, '/echo');
     } else {
-      socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
+      router(data, method, target);
     }
   });
 });
