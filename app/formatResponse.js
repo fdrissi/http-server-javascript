@@ -6,7 +6,5 @@ module.exports = function formatResponse(headers = [], body) {
     response += `${body}\r\n`;
   }
 
-  console.log('response', response);
-
   return response;
 };

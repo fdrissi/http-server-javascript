@@ -1,11 +1,18 @@
 const { readFile } = require('node:fs/promises');
 const formatResponse = require('./formatResponse');
 const { join } = require('node:path');
-const { access, constants, existsSync } = require('node:fs');
+const {
+  access,
+  constants,
+  existsSync,
+  writeFile,
+  writeFileSync,
+} = require('node:fs');
 const path = require('node:path');
 
 const RESPONSE_STATUSES = {
   TWO_HUNDRED_RESPONSE: 'HTTP/1.1 200 OK',
+  TWO_OH_ONE_RESPONSE: 'HTTP/1.1 201 Created',
   FOUR_OH_FOU_RESPONSE: 'HTTP/1.1 404 Not Found',
 };
 
@@ -21,11 +28,15 @@ const ROUTES = {
     '/user-agent': userAgentHandler,
     '/files': filesHandler,
   },
+  POST: {
+    '/files': writeFilesHandler,
+  },
 };
 
 // GET: /
 function mainRouteHandler(req, res) {
   res.write(`${RESPONSE_STATUSES.TWO_HUNDRED_RESPONSE}\r\n\r\n`);
+  return res.end();
 }
 
 // GET: /echo/<string>
@@ -46,6 +57,8 @@ function echoRouteHandler(req, res) {
       body
     )
   );
+
+  return res.end();
 }
 
 // GET: /user-agent
@@ -63,6 +76,7 @@ function userAgentHandler(req, res) {
       userAgent
     )
   );
+  return res.end();
 }
 
 // GET: /files
@@ -74,7 +88,6 @@ async function filesHandler(req, res) {
   } = req;
   const directory = process.argv[2] === '--directory' ? process.argv[3] : null;
   const filePath = path.resolve(path.join(directory, fileName));
-  console.log(filePath);
 
   if (existsSync(filePath)) {
     const contents = await readFile(filePath, { encoding: 'utf8' });
@@ -99,8 +112,25 @@ async function filesHandler(req, res) {
   return res.end();
 }
 
+async function writeFilesHandler(req, res) {
+  const {
+    requestLine: {
+      target: { urlParams: fileName },
+    },
+    body,
+  } = req;
+  const directory = process.argv[2] === '--directory' ? process.argv[3] : null;
+  const filePath = path.resolve(path.join(directory, fileName));
+  console.log('file', `${directory}${fileName}`, body[0]);
+
+  writeFileSync(filePath, body?.[0]);
+  res.write(formatResponse([RESPONSE_STATUSES.TWO_OH_ONE_RESPONSE]));
+  return res.end();
+}
+
 function routeNotFoundHandler(req, res) {
   res.write(`${RESPONSE_STATUSES.FOUR_OH_FOU_RESPONSE}\r\n\r\n`);
+  return res.end();
 }
 
 module.exports = (res) => {
