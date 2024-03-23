@@ -1,25 +1,9 @@
-const { readFile } = require('node:fs/promises');
-const formatResponse = require('./formatResponse');
-const { join } = require('node:path');
-const {
-  access,
-  constants,
-  existsSync,
-  writeFile,
-  writeFileSync,
-} = require('node:fs');
 const path = require('node:path');
+const { readFile } = require('node:fs/promises');
+const { existsSync, writeFileSync } = require('node:fs');
 
-const RESPONSE_STATUSES = {
-  TWO_HUNDRED_RESPONSE: 'HTTP/1.1 200 OK',
-  TWO_OH_ONE_RESPONSE: 'HTTP/1.1 201 Created',
-  FOUR_OH_FOU_RESPONSE: 'HTTP/1.1 404 Not Found',
-};
-
-const CONTENT_TYPES = {
-  TEXT_PLAIN: 'Content-Type: text/plain',
-  OCTET_STREAM: 'Content-Type: application/octet-stream',
-};
+const formatResponse = require('./formatResponse');
+const { RESPONSE_STATUSES, CONTENT_TYPES } = require('./constants');
 
 const ROUTES = {
   GET: {
@@ -112,6 +96,7 @@ async function filesHandler(req, res) {
   return res.end();
 }
 
+// POST: /files
 async function writeFilesHandler(req, res) {
   const {
     requestLine: {
@@ -121,7 +106,6 @@ async function writeFilesHandler(req, res) {
   } = req;
   const directory = process.argv[2] === '--directory' ? process.argv[3] : null;
   const filePath = path.resolve(path.join(directory, fileName));
-  console.log('file', `${directory}${fileName}`, body[0]);
 
   writeFileSync(filePath, body?.[0]);
   res.write(formatResponse([RESPONSE_STATUSES.TWO_OH_ONE_RESPONSE]));

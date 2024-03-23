@@ -1,9 +1,11 @@
+const CRLF = '\r\n';
+
 module.exports = function formatResponse(headers = [], body) {
-  let response = headers.join('\r\n');
-  response += '\r\n\r\n';
+  let response = headers.join(CRLF);
+  response += CRLF + CRLF;
 
   if (Boolean(body)) {
-    response += `${body}\r\n`;
+    response += `${body}${CRLF}`;
   }
 
   return response;

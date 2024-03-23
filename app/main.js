@@ -4,6 +4,7 @@ const routes = require('./routes');
 
 const server = net.createServer((socket) => {
   const router = routes(socket);
+
   socket.on('close', () => {
     socket.end();
   });

@@ -8,12 +8,12 @@ module.exports = function requestParser(req) {
     const [key, value] = curr.split(': ');
     return {
       ...prev,
-      [key]: value,
+      [key.trim()]: value.trim(),
     };
   }, {});
 
-  const [, route, ...restTarget] = target.split('/');
-  const urlParams = restTarget.join('/');
+  const [, route, ...params] = target.split('/');
+  const urlParams = params.join('/');
 
   return {
     requestLine: {
