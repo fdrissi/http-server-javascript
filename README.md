@@ -11,28 +11,19 @@ Along the way you'll learn about TCP servers,
 [HTTP request syntax](https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html),
 and more.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
-
-# Passing the first stage
-
-The entry point for your HTTP server implementation is in `app/main.js`. Study
-and uncomment the relevant code, and push your changes to pass the first stage:
-
-```sh
-git add .
-git commit -m "pass 1st stage" # any msg
-git push origin master
-```
-
-Time to move on to the next stage!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
+# How to
 
 1. Ensure you have `node (18)` installed locally
 1. Run `./your_server.sh` to run your program, which is implemented in
    `app/main.js`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+1. Start sending requests to your server using for example `curl`.
+
+# Routes
+
+There are 5 routes, 4 of them are GET and one is a POST route.
+
+1. `GET: /` return 200.
+2. `GET: /echo/<string>` return 200, content-length, and the passed string as the response body.
+3. `GET: /user-agent` return 200, parse the user-agent from the request headers and return it as a response body.
+4. `GET: /files/<file-name>` return 200, the content of the passed file if exists, if not it return 404.
+5. `POST: /files/<file-name>` return 200, create a file with the provided name and the content of it grabs it from the request body.
